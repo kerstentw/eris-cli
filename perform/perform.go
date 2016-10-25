@@ -20,8 +20,6 @@ import (
 	"github.com/eris-ltd/eris-cli/log"
 	"github.com/eris-ltd/eris-cli/util"
 
-	"github.com/eris-ltd/common/go/common"
-
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
 	docker "github.com/fsouza/go-dockerclient"
@@ -744,7 +742,7 @@ func createContainer(opts docker.CreateContainerOptions) (*docker.Container, err
 		if err == docker.ErrNoSuchImage {
 			if os.Getenv("ERIS_PULL_APPROVE") != "true" {
 				log.WithField("image", opts.Config.Image).Warn("The Docker image not found locally")
-				if common.QueryYesOrNo("Would you like the marmots to pull it from the repository?") == common.Yes {
+				if util.QueryYesOrNo("Would you like the marmots to pull it from the repository?") == util.Yes {
 					log.Debug("User assented to pull")
 				} else {
 					log.Debug("User refused to pull")
@@ -964,7 +962,7 @@ func configureInteractiveContainer(srv *definitions.Service, ops *definitions.Op
 	// Mount a volume.
 	if ops.Volume != "" {
 		bind := filepath.Join(ops.Volume) + ":" +
-			filepath.Join(common.ErisContainerRoot, filepath.Base(ops.Volume))
+			filepath.Join(config.ErisContainerRoot, filepath.Base(ops.Volume))
 
 		if opts.HostConfig.Binds == nil {
 			opts.HostConfig.Binds = []string{bind}
@@ -1078,7 +1076,7 @@ func configureVolumesFromContainer(ops *definitions.Operation, service *definiti
 		Config: &docker.Config{
 			Image:           path.Join(config.Global.DefaultRegistry, config.Global.ImageData),
 			User:            "root",
-			WorkingDir:      common.ErisContainerRoot,
+			WorkingDir:      config.ErisContainerRoot,
 			AttachStdout:    true,
 			AttachStderr:    true,
 			AttachStdin:     true,

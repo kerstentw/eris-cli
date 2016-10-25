@@ -14,8 +14,6 @@ import (
 	"github.com/eris-ltd/eris-cli/log"
 	"github.com/eris-ltd/eris-cli/testutil"
 	"github.com/eris-ltd/eris-cli/util"
-
-	"github.com/eris-ltd/common/go/common"
 )
 
 type ab struct {
@@ -57,7 +55,7 @@ ports          = [ "1234" ]
 	mockConfigPathFile(t, name)
 	defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), "config", definition); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), "config", definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -108,7 +106,7 @@ ports          = [ "1234" ]
 	//mockConfigPathFile(t, name)
 	//defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), "config", definition); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), "config", definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -145,10 +143,10 @@ email = "support@monax.io"
 	mockConfigPathFile(t, name)
 	defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(common.ChainsPath, "default", defaultDefinition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ChainsPath, "default", defaultDefinition); err != nil {
 		t.Fatalf("cannot place a default definition file")
 	}
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), name, ``); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), name, ``); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -184,10 +182,10 @@ func TestLoadChainDefinitionEmptyDefaultAndDefinition(t *testing.T) {
 	mockConfigPathFile(t, name)
 	defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(common.ChainsPath, "default", ``); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ChainsPath, "default", ``); err != nil {
 		t.Fatalf("cannot place a default definition file")
 	}
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), name, ``); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), name, ``); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -234,7 +232,7 @@ ports          = [ "4321" ]
 	mockConfigPathFile(t, name)
 	defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), name, definition); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), name, definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -283,10 +281,10 @@ image          = "test image"
 	mockConfigPathFile(t, name)
 	defer removeConfigPathFile(t, name)
 
-	if err := testutil.FakeDefinitionFile(common.ChainsPath, "default", ``); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ChainsPath, "default", ``); err != nil {
 		t.Fatalf("cannot place a default definition file")
 	}
-	if err := testutil.FakeDefinitionFile(filepath.Join(common.ChainsPath, name), name, definition); err != nil {
+	if err := testutil.FakeDefinitionFile(filepath.Join(config.ChainsPath, name), name, definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -325,9 +323,9 @@ func _TestChainsAsAServiceMissing(t *testing.T) {
 		name = "test"
 	)
 
-	os.Remove(filepath.Join(common.ChainsPath, name, name+".toml"))
+	os.Remove(filepath.Join(config.ChainsPath, name, name+".toml"))
 
-	if err := testutil.FakeDefinitionFile(common.ChainsPath, "default", ``); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ChainsPath, "default", ``); err != nil {
 		t.Fatalf("cannot place a default definition file")
 	}
 
@@ -371,11 +369,11 @@ chain_id   = "test id"
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ErisRoot, "package", definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ErisRoot, "package", definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
-	d, err := LoadPackage(common.ErisRoot, name)
+	d, err := LoadPackage(config.ErisRoot, name)
 	if err != nil {
 		t.Fatalf("expected to load definition file, got %v", err)
 	}
@@ -406,11 +404,11 @@ chain_id   = "test id"
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ErisRoot, "package", definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ErisRoot, "package", definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
-	d, err := LoadPackage(filepath.Join(common.ErisRoot, "package.toml"), name)
+	d, err := LoadPackage(filepath.Join(config.ErisRoot, "package.toml"), name)
 	if err != nil {
 		t.Fatalf("expected to load definition file, got %v", err)
 	}
@@ -431,7 +429,7 @@ func TestLoadPackageNotFound1(t *testing.T) {
 		name = "test"
 	)
 
-	os.Remove(filepath.Join(common.ErisRoot, "package.toml"))
+	os.Remove(filepath.Join(config.ErisRoot, "package.toml"))
 
 	if _, err := LoadPackage("/non/existent/path", name); err == nil {
 		t.Fatalf("expected definition fail to load")
@@ -443,9 +441,9 @@ func TestLoadPackageNotFound2(t *testing.T) {
 		name = "test"
 	)
 
-	os.Remove(filepath.Join(common.ErisRoot, "package.toml"))
+	os.Remove(filepath.Join(config.ErisRoot, "package.toml"))
 
-	d, err := LoadPackage(common.ErisRoot, "")
+	d, err := LoadPackage(config.ErisRoot, "")
 	if err != nil {
 		t.Fatalf("expected definition to load default, got %v", err)
 	}
@@ -466,9 +464,9 @@ func TestLoadPackageNotFound3(t *testing.T) {
 		name = "test"
 	)
 
-	os.Remove(filepath.Join(common.ErisRoot, "package.toml"))
+	os.Remove(filepath.Join(config.ErisRoot, "package.toml"))
 
-	d, err := LoadPackage(common.ErisRoot, name)
+	d, err := LoadPackage(config.ErisRoot, name)
 	if err != nil {
 		t.Fatalf("expected definition to load default, got %v", err)
 	}
@@ -494,11 +492,11 @@ name       = [ "keys"]
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ErisRoot, "package", definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ErisRoot, "package", definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
-	if _, err := LoadPackage(common.ErisRoot, name); err == nil {
+	if _, err := LoadPackage(config.ErisRoot, name); err == nil {
 		t.Fatalf("expected definition fail to load")
 	}
 }
@@ -521,7 +519,7 @@ repository = "https://example.com"
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ServicesPath, name, definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ServicesPath, name, definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -563,7 +561,7 @@ image = "test image"
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ServicesPath, name, definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ServicesPath, name, definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -597,7 +595,7 @@ func TestLoadServiceDefinitionEmpty(t *testing.T) {
 		name = "test"
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ServicesPath, name, ``); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ServicesPath, name, ``); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -611,7 +609,7 @@ func TestLoadServiceDefinitionMissing(t *testing.T) {
 		name = "test"
 	)
 
-	os.Remove(filepath.Join(common.ServicesPath, name+".toml"))
+	os.Remove(filepath.Join(config.ServicesPath, name+".toml"))
 
 	if _, err := LoadServiceDefinition(name); err == nil {
 		t.Fatalf("expected definition fail to load")
@@ -628,7 +626,7 @@ image = [ "keys" ]
 `
 	)
 
-	if err := testutil.FakeDefinitionFile(common.ServicesPath, name, definition); err != nil {
+	if err := testutil.FakeDefinitionFile(config.ServicesPath, name, definition); err != nil {
 		t.Fatalf("cannot place a definition file")
 	}
 
@@ -752,8 +750,8 @@ func TestServiceFinalizeLoadBlankAllTheThings(t *testing.T) {
 func mockConfigPathFile(t *testing.T, name string) {
 	// this occures in [func setupChain] in chains/operate.go
 	// here we mock it for LoadChainDefinition to work
-	configPath := filepath.Join(common.ChainsPath, name)
-	fileName := filepath.Join(common.ChainsPath, name, "CONFIG_PATH")
+	configPath := filepath.Join(config.ChainsPath, name)
+	fileName := filepath.Join(config.ChainsPath, name, "CONFIG_PATH")
 
 	if err := os.MkdirAll(configPath, 0777); err != nil {
 		t.Fatalf("error making chain directory: %v", err)
@@ -765,7 +763,7 @@ func mockConfigPathFile(t *testing.T, name string) {
 }
 
 func removeConfigPathFile(t *testing.T, name string) {
-	fileName := filepath.Join(common.ChainsPath, name, "CONFIG_PATH")
+	fileName := filepath.Join(config.ChainsPath, name, "CONFIG_PATH")
 	if err := os.Remove(fileName); err != nil {
 		t.Fatalf("error making chain directory: %v", err)
 	}

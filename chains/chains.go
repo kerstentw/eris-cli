@@ -17,7 +17,6 @@ import (
 	"github.com/eris-ltd/eris-cli/services"
 	"github.com/eris-ltd/eris-cli/util"
 
-	"github.com/eris-ltd/common/go/common"
 	"github.com/eris-ltd/eris-cli/log"
 )
 
@@ -178,7 +177,7 @@ func CatChain(do *definitions.Do) error {
 	if do.Name == "" {
 		return fmt.Errorf("a chain name is required")
 	}
-	rootDir := path.Join(common.ErisContainerRoot, "chains", do.Name)
+	rootDir := path.Join(config.ErisContainerRoot, "chains", do.Name)
 
 	doCat := definitions.NowDo()
 	doCat.Name = do.Name
@@ -244,7 +243,7 @@ func RemoveChain(do *definitions.Do) error {
 	}
 
 	if do.RmHF {
-		dirPath := filepath.Join(common.ChainsPath, do.Name) // the dir
+		dirPath := filepath.Join(config.ChainsPath, do.Name) // the dir
 
 		log.WithField("directory", dirPath).Warn("Removing directory")
 		if err := os.RemoveAll(dirPath); err != nil {
@@ -382,14 +381,14 @@ func setupChain(do *definitions.Do) (err error) {
 	}
 
 	containerName := util.ChainContainerName(do.Name)
-	containerDst := path.Join(common.ErisContainerRoot, "chains", do.Name)
+	containerDst := path.Join(config.ErisContainerRoot, "chains", do.Name)
 	hostSrc := do.Path
 
 	// writes a pointer (similar to checked out chain) for do.Path in the chain main dir
 	// this can then be read by loaders.LoadChainDefinition(), in order to get the
 	// path to the config.toml that was written in each directory
 	// this allows cli to keep track of a given config.toml (locally)
-	fileName := filepath.Join(common.ChainsPath, do.Name, "CONFIG_PATH")
+	fileName := filepath.Join(config.ChainsPath, do.Name, "CONFIG_PATH")
 	if _, err = os.Stat(fileName); err != nil {
 		if err := ioutil.WriteFile(fileName, []byte(do.Path), 0666); err != nil {
 			return fmt.Errorf("error writing CONFIG_PATH file: %v", err)
@@ -439,7 +438,7 @@ func setupChain(do *definitions.Do) (err error) {
 		if err := perform.DockerCreateData(ops); err != nil {
 			return fmt.Errorf("Error creating data container =>\t%v", err)
 		}
-		ops.Args = []string{"mkdir", "-p", path.Join(common.ErisContainerRoot, "chains", do.Name)}
+		ops.Args = []string{"mkdir", "-p", path.Join(config.ErisContainerRoot, "chains", do.Name)}
 		if _, err := perform.DockerExecData(ops, nil); err != nil {
 			return err
 		}
@@ -478,7 +477,7 @@ func setupChain(do *definitions.Do) (err error) {
 	}
 	doKeys := definitions.NowDo()
 	doKeys.Name = "keys"
-	doKeys.Operations.Args = []string{"mintkey", "eris", fmt.Sprintf("%s/chains/%s/priv_validator.json", common.ErisContainerRoot, do.Name)}
+	doKeys.Operations.Args = []string{"mintkey", "eris", fmt.Sprintf("%s/chains/%s/priv_validator.json", config.ErisContainerRoot, do.Name)}
 	doKeys.Operations.SkipLink = true
 	doKeys.Service.VolumesFrom = []string{util.DataContainerName(do.Name)}
 	if out, err := services.ExecService(doKeys); err != nil {
@@ -515,8 +514,8 @@ func chainsPathSimplifier(chainName, pathGiven string) (string, error) {
 			return pathGiven, nil
 		}
 	} else {
-		chainDirPathSimple := filepath.Join(common.ChainsPath, pathGiven)               // if simplechain, pathGiven == chainName
-		chainDirPathNotSimple := filepath.Join(common.ChainsPath, chainName, pathGiven) // ignored if simplechain
+		chainDirPathSimple := filepath.Join(config.ChainsPath, pathGiven)               // if simplechain, pathGiven == chainName
+		chainDirPathNotSimple := filepath.Join(config.ChainsPath, chainName, pathGiven) // ignored if simplechain
 
 		if util.DoesDirExist(chainDirPathSimple) && doesConfigExist(chainDirPathSimple) {
 			return chainDirPathSimple, nil
@@ -547,7 +546,7 @@ func whatChainStuffExists(chainName string) (bool, bool, bool, bool) {
 	var chainContainerExists bool
 
 	// does the chain directory exist?
-	if util.DoesDirExist(filepath.Join(common.ChainsPath, chainName)) {
+	if util.DoesDirExist(filepath.Join(config.ChainsPath, chainName)) {
 		chainDirExists = true
 	} else {
 		chainDirExists = false

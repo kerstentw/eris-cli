@@ -11,8 +11,6 @@ import (
 	"github.com/eris-ltd/eris-cli/log"
 	"github.com/eris-ltd/eris-cli/util"
 
-	"github.com/eris-ltd/common/go/common"
-
 	"github.com/spf13/viper"
 )
 
@@ -25,7 +23,7 @@ func LoadChainDefinition(chainName string) (*definitions.ChainDefinition, error)
 	chain.Operations.ContainerType = definitions.TypeChain
 	chain.Operations.Labels = util.Labels(chain.Name, chain.Operations)
 
-	whereIsTheConfigFile := filepath.Join(common.ChainsPath, chainName, "CONFIG_PATH")
+	whereIsTheConfigFile := filepath.Join(config.ChainsPath, chainName, "CONFIG_PATH")
 	var err error
 	pathToConfig, err := ioutil.ReadFile(whereIsTheConfigFile)
 	if err != nil {
